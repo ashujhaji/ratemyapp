@@ -14,7 +14,10 @@ public class MainActivity extends AppCompatActivity {
 
         RatingDialog.getInstance()
                 .setPeriodicCount(3)
-                .setIcon(R.drawable.ic_launcher_background)
+                .setBackgroundColor(R.color.grey300)
+                .setIcon(R.drawable.ic_launcher_foreground)
+                .setCancelTextColor(R.color.colorPrimary)
+                .setMessageTextColor(R.color.colorPrimary)
                 .setMessageText("Loved Rating App? Please rate us")
                 .initDialog(MainActivity.this, MainActivity.this)
                 .showDialog();

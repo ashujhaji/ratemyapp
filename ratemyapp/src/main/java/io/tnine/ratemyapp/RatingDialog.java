@@ -37,7 +37,7 @@ public class RatingDialog {
     private String msg;
     private int cancel_txt_color = R.color.grey500;
     private int msg_txt_color = R.color.black;
-    private int cancel_bg = 0;
+    private int cancel_bg = R.drawable.star;
     private Context context;
     private Activity activity;
 
@@ -60,7 +60,7 @@ public class RatingDialog {
      * @param color
      * @return default color is white
      */
-    public RatingDialog setBackgroundColor(@ColorInt int color) {
+    public RatingDialog setBackgroundColor(int color) {
         this.mColor = color;
         return this;
     }
@@ -104,22 +104,23 @@ public class RatingDialog {
      * @param cancel_txt_color
      * @return default color is grey
      */
-    public RatingDialog setCancelTextColor(@ColorInt int cancel_txt_color) {
+    public RatingDialog setCancelTextColor(int cancel_txt_color) {
         this.cancel_txt_color = cancel_txt_color;
         return this;
     }
 
     /**
      * set background drawable for not now text
+     *
      * @param cancel_bg
      * @return
      */
-    public RatingDialog setCancelTextBackground(@DrawableRes int cancel_bg) {
+    public RatingDialog setCancelTextBackground(int cancel_bg) {
         this.cancel_bg = cancel_bg;
         return this;
     }
 
-    public RatingDialog setMessageTextColor(@ColorInt int msg_txt_color){
+    public RatingDialog setMessageTextColor(int msg_txt_color) {
         this.msg_txt_color = msg_txt_color;
         return this;
     }
@@ -168,18 +169,15 @@ public class RatingDialog {
         default_app_icon.setImageDrawable(context.getResources().getDrawable(icon));
         default_not_now.setTextColor(context.getResources().getColor(cancel_txt_color));
         default_rating_msg.setTextColor(context.getResources().getColor(msg_txt_color));
-        try {
-            default_not_now.setBackground(context.getResources().getDrawable(cancel_bg));
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        default_not_now.setBackground(context.getResources().getDrawable(cancel_bg));
         default_rating_msg.setText(msg);
 
         return this;
     }
 
     public void showDialog() {
-        Toast.makeText(context,String.valueOf(MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0)),Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, String.valueOf(MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0)), Toast.LENGTH_SHORT).show();
+        MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) + 1);
         if (!MyPref.getBoolean(Constants.IS_JOB_FINISHED, false)) {
             if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) == periodic_count) {
                 showRatingDialog();
