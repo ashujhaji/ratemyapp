@@ -37,7 +37,8 @@ public class RatingDialog {
         return instance;
     }
 
-    public static void initRateMyApp(Context context){
+    public void openRatingDialog(final Context context, final Activity activity, String your_app_name){
+
         //------------------------shared preference init---------------------------
         new MyPref.Builder().setContext(context)
                 .setMode(ContextWrapper.MODE_PRIVATE)
@@ -52,9 +53,6 @@ public class RatingDialog {
         //-------------------dialog init------------------------------
         dialog = new Dialog(context);
         dialog.setContentView(R.layout.rate_dialog);
-    }
-
-    public void openRatingDialog(final Context context, final Activity activity, String your_app_name){
 
         //-----------------------views init------------------------
         default_rating_msg = dialog.findViewById(R.id.default_rating_msg);
