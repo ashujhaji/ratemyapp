@@ -8,11 +8,13 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.ColorInt;
+import android.support.annotation.DrawableRes;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -27,9 +29,22 @@ public class RatingDialog {
     private static Dialog dialog;
     private TextView default_rating_msg, default_not_now;
     private RatingBar ratingBar;
-    private static RelativeLayout rate_dialog_bg;
+    private ImageView default_app_icon;
+    private RelativeLayout rate_dialog_bg;
+    private int mColor = 0;
+    private int periodic_count=3;
+    private int icon;
+    private String msg;
+    private int cancel_txt_color = 0;
+    private int cancel_bg = 0;
+    private Context context;
+    private Activity activity;
 
 
+    /**
+     * init class object
+     * @return
+     */
     public static RatingDialog getInstance(){
         if (instance == null){
             instance = new RatingDialog();
@@ -37,9 +52,80 @@ public class RatingDialog {
         return instance;
     }
 
-    public void openRatingDialog(final Context context, final Activity activity, String your_app_name){
+    /**
+     * set background color of rating dialog as you need
+     * @param color
+     * @return
+     * default color is white
+     */
+    public RatingDialog setBackgroundColor(@ColorInt int color){
+        this.mColor = color;
+        return this;
+    }
 
-        //------------------------shared preference init---------------------------
+    /**
+     * set a number of app opening after which you want to show rating dialog
+     * @param periodic_count
+     * @return
+     * otherwise it will take default value i.e. 3
+     */
+    public RatingDialog setPeriodicCount(int periodic_count){
+        this.periodic_count = periodic_count;
+        return this;
+    }
+
+    /**
+     * set your app icon to make it attractive
+     * @param icon
+     * @return
+     * default icon will be star
+     */
+    public RatingDialog setIcon(int icon){
+        this.icon = icon;
+        return this;
+    }
+
+    /**
+     * set a message with which you can attract your user to rate
+     * @param msg
+     * @return
+     */
+    public RatingDialog setMessageText(String msg){
+        this.msg = msg;
+        return this;
+    }
+
+    /**
+     * set text color of cancel button
+     * @param cancel_txt_color
+     * @return
+     * default color is grey
+     */
+    public RatingDialog setCancelTextColor(@ColorInt int cancel_txt_color){
+        this.cancel_txt_color = cancel_txt_color;
+        return this;
+    }
+
+    public RatingDialog setCancelTextBackground(@DrawableRes int cancel_bg){
+        this.cancel_bg = cancel_bg;
+        return this;
+    }
+
+    public RatingDialog setTextFont(){
+        return this;
+    }
+
+    /**
+     * initialize rating dialog
+     * @param context
+     * @param activity
+     * @return
+     */
+    public RatingDialog initDialog(Context context, Activity activity){
+        this.context = context;
+        this.activity = activity;
+
+        //--------------------------init local db------------------------
         new MyPref.Builder().setContext(context)
                 .setMode(ContextWrapper.MODE_PRIVATE)
                 .setPrefsName(context.getPackageName())
@@ -50,7 +136,7 @@ public class RatingDialog {
             MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN,0);
         }
 
-        //-------------------dialog init------------------------------
+        //-------------------------init dialog---------------------------
         dialog = new Dialog(context);
         dialog.setContentView(R.layout.rate_dialog);
 
@@ -58,13 +144,30 @@ public class RatingDialog {
         default_rating_msg = dialog.findViewById(R.id.default_rating_msg);
         default_not_now = dialog.findViewById(R.id.default_not_now);
         ratingBar = dialog.findViewById(R.id.default_rate_bar);
+        default_app_icon = dialog.findViewById(R.id.default_app_icon);
+        rate_dialog_bg = dialog.findViewById(R.id.rate_dialog_bg);
 
 
-        //----------------------------------set view data------------------------
-        default_rating_msg.setText("Are you enjoying "+your_app_name+" ? Please rate us");
+        //-------------------------style views------------------------
+        rate_dialog_bg.setBackgroundColor(context.getResources().getColor(mColor));
+        default_app_icon.setImageDrawable(context.getResources().getDrawable(icon));
+        default_not_now.setTextColor(context.getResources().getColor(cancel_txt_color));
+        default_not_now.setBackground(context.getResources().getDrawable(cancel_bg));
+        default_rating_msg.setText(msg);
 
-        if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN,0)==3){
-            showRatingDialog();
+        return this;
+    }
+
+    public void showDialog(){
+        if (MyPref.getBoolean(Constants.IS_DIALOG_INITIALIZED,false)){
+            MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN,0);
+            MyPref.putBoolean(Constants.IS_DIALOG_INITIALIZED,true);
+        }
+
+        if (!MyPref.getBoolean(Constants.IS_JOB_FINISHED, true)) {
+            if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) == 3) {
+                showRatingDialog();
+            }
         }
 
         default_not_now.setOnClickListener(new View.OnClickListener() {
@@ -84,26 +187,20 @@ public class RatingDialog {
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
             public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
-                if (rating<4){
+                if (rating < 4) {
                     closeRatingDialog();
-                    Toast.makeText(context, "Thanks for your feedback",Toast.LENGTH_SHORT).show();
-                }else {
+                    Toast.makeText(context, "Thanks for your feedback", Toast.LENGTH_SHORT).show();
+                } else {
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             closeRatingDialog();
-                            openProceedDialog(context,activity);
+                            openProceedDialog(context, activity);
                         }
-                    },500);
+                    }, 500);
                 }
             }
         });
-
-        if (!MyPref.getBoolean(Constants.IS_JOB_FINISHED,true)){
-            if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN,0)==3){
-                dialog.show();
-            }
-        }
     }
 
     private void closeRatingDialog(){

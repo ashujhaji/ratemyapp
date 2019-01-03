@@ -25,7 +25,8 @@
             android:gravity="center"
             android:textColor="@color/grey800"
             android:textSize="17dp"
-            android:id="@+id/default_rating_msg"/>
+            android:id="@+id/default_rating_msg"
+            android:text="@string/rate_msg"/>
 
         <RatingBar
             android:id="@+id/default_rate_bar"

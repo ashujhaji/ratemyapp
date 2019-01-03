@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">RateMyApp</string>
+    <string name="rate_msg">Are you enjoying our app? Please rate us</string>
 </resources>
