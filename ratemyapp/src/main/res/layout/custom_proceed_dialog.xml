@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="17dp">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Thank You!!"
+            android:textColor="#393838"
+            android:textSize="22sp"
+            android:textStyle="normal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="6dp"
+            android:text="Please rate us on Google Playstore to support us."
+            android:textColor="#000000"
+            android:textSize="17sp" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="right"
+            android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/proceed_neutral_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LATER"
+                android:textColor="@color/grey500"
+                android:layout_marginRight="30dp"/>
+
+            <TextView
+                android:id="@+id/proceed_positive_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PROCEED"
+                android:textColor="@color/grey500"
+                android:textSize="13sp"
+                android:layout_marginRight="60dp"/>
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>
