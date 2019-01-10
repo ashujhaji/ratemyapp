@@ -27,7 +27,7 @@ public class RatingDialog {
 
     private static RatingDialog instance;
     private static Dialog dialog;
-    private TextView default_rating_msg, default_not_now;
+    private TextView default_rating_msg, default_not_now, default_never, btn_positive;
     private RatingBar ratingBar;
     private ImageView default_app_icon;
     private RelativeLayout rate_dialog_bg;
@@ -38,6 +38,7 @@ public class RatingDialog {
     private int cancel_txt_color = R.color.grey500;
     private int msg_txt_color = R.color.black;
     private int cancel_bg = R.drawable.star;
+    private int proceed_bg = R.drawable.bg_proceed;
     private Context context;
     private Activity activity;
 
@@ -120,14 +121,29 @@ public class RatingDialog {
         return this;
     }
 
+    /**
+     * set message text color
+     * @param msg_txt_color
+     * @return
+     */
     public RatingDialog setMessageTextColor(int msg_txt_color) {
         this.msg_txt_color = msg_txt_color;
         return this;
     }
 
-    public RatingDialog setTextFont() {
+    /**
+     * set background drawable to proceed button
+     * @param proceedBg
+     * @return
+     */
+    public RatingDialog setProceedBackgroundDrawable(int proceedBg){
+        this.proceed_bg = proceedBg;
         return this;
     }
+
+//    public RatingDialog setTextFont() {
+//        return this;
+//    }
 
     /**
      * initialize rating dialog
@@ -159,6 +175,7 @@ public class RatingDialog {
         //-----------------------views init------------------------
         default_rating_msg = dialog.findViewById(R.id.default_rating_msg);
         default_not_now = dialog.findViewById(R.id.default_not_now);
+        default_never = dialog.findViewById(R.id.default_never);
         ratingBar = dialog.findViewById(R.id.default_rate_bar);
         default_app_icon = dialog.findViewById(R.id.default_app_icon);
         rate_dialog_bg = dialog.findViewById(R.id.rate_dialog_bg);
@@ -176,9 +193,8 @@ public class RatingDialog {
     }
 
     public void showDialog() {
-        Toast.makeText(context, String.valueOf(MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0)), Toast.LENGTH_SHORT).show();
-        MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) + 1);
         if (!MyPref.getBoolean(Constants.IS_JOB_FINISHED, false)) {
+            MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) + 1);
             if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) == periodic_count) {
                 showRatingDialog();
             }
@@ -188,6 +204,14 @@ public class RatingDialog {
             @Override
             public void onClick(View v) {
                 closeRatingDialog();
+            }
+        });
+
+        default_never.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeRatingDialog();
+                MyPref.putBoolean(Constants.IS_JOB_FINISHED,true);
             }
         });
 
@@ -234,9 +258,10 @@ public class RatingDialog {
         builder.setView(dialogView);
 
         // Get the custom alert dialog view widgets reference
-        TextView btn_positive = dialogView.findViewById(R.id.proceed_positive_btn);
+        btn_positive = dialogView.findViewById(R.id.proceed_positive_btn);
         TextView btn_negative = dialogView.findViewById(R.id.proceed_neutral_btn);
 
+        btn_positive.setBackground(context.getResources().getDrawable(proceed_bg));
         // Create the alert dialog
         final AlertDialog alertDialog = builder.create();
 
