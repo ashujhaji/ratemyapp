@@ -33,7 +33,7 @@ public class RatingDialog {
     private RelativeLayout rate_dialog_bg;
     private int mColor = R.color.white;
     private int periodic_count = 3;
-    private int icon;
+    private int icon = R.drawable.star;
     private String msg;
     private int cancel_txt_color = R.color.grey500;
     private int msg_txt_color = R.color.black;
