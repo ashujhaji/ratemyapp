@@ -19,7 +19,6 @@ public class MainActivity extends AppCompatActivity {
                 .setCancelTextColor(R.color.grey500)
                 .setMessageTextColor(R.color.colorAccent)
                 .setCancelTextBackground(R.color.white)
-                .setProceedBackgroundDrawable(R.drawable.proceed)
                 .setMessageText("Loved Rating App? Please rate us")
                 .initDialog(MainActivity.this, MainActivity.this)
                 .showDialog();

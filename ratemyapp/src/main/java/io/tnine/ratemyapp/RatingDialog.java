@@ -5,13 +5,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -21,16 +19,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import io.tnine.ratemyapp.utils.Constants;
-import io.tnine.ratemyapp.utils.MyPref;
 
 public class RatingDialog {
 
     private static RatingDialog instance;
     private static Dialog dialog;
-    private TextView default_rating_msg, default_not_now, default_never, btn_positive;
+    private TextView default_not_now;
+    private TextView default_never;
     private RatingBar ratingBar;
-    private ImageView default_app_icon;
-    private RelativeLayout rate_dialog_bg;
     private int mColor = R.color.white;
     private int periodic_count = 3;
     private int icon = R.drawable.star;
@@ -41,6 +37,8 @@ public class RatingDialog {
     private int proceed_bg = R.drawable.bg_proceed;
     private Context context;
     private Activity activity;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
 
     /**
@@ -157,15 +155,13 @@ public class RatingDialog {
         this.activity = activity;
 
         //--------------------------init local db------------------------
-        new MyPref.Builder().setContext(context)
-                .setMode(ContextWrapper.MODE_PRIVATE)
-                .setPrefsName(context.getPackageName())
-                .setUseDefaultSharedPreference(true)
-                .build();
+        pref = context.getSharedPreferences(Constants.PREF_NAME,Context.MODE_PRIVATE);
+        editor = pref.edit();
 
-        if (!MyPref.getBoolean(Constants.IS_DIALOG_INITIALIZED, false)) {
-            MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
-            MyPref.putBoolean(Constants.IS_DIALOG_INITIALIZED, true);
+        if (!pref.getBoolean(Constants.IS_DIALOG_INITIALIZED, false)) {
+            editor.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+            editor.putBoolean(Constants.IS_DIALOG_INITIALIZED, true);
+            editor.apply();
         }
 
         //-------------------------init dialog---------------------------
@@ -173,12 +169,12 @@ public class RatingDialog {
         dialog.setContentView(R.layout.rate_dialog);
 
         //-----------------------views init------------------------
-        default_rating_msg = dialog.findViewById(R.id.default_rating_msg);
+        TextView default_rating_msg = dialog.findViewById(R.id.default_rating_msg);
         default_not_now = dialog.findViewById(R.id.default_not_now);
         default_never = dialog.findViewById(R.id.default_never);
         ratingBar = dialog.findViewById(R.id.default_rate_bar);
-        default_app_icon = dialog.findViewById(R.id.default_app_icon);
-        rate_dialog_bg = dialog.findViewById(R.id.rate_dialog_bg);
+        ImageView default_app_icon = dialog.findViewById(R.id.default_app_icon);
+        RelativeLayout rate_dialog_bg = dialog.findViewById(R.id.rate_dialog_bg);
 
 
         //-------------------------style views------------------------
@@ -193,9 +189,10 @@ public class RatingDialog {
     }
 
     public void showDialog() {
-        if (!MyPref.getBoolean(Constants.IS_JOB_FINISHED, false)) {
-            MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) + 1);
-            if (MyPref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) == periodic_count) {
+        if (!pref.getBoolean(Constants.IS_JOB_FINISHED, false)) {
+            editor.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, pref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) + 1);
+            editor.apply();
+            if (pref.getInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0) == periodic_count) {
                 showRatingDialog();
             }
         }
@@ -211,7 +208,8 @@ public class RatingDialog {
             @Override
             public void onClick(View v) {
                 closeRatingDialog();
-                MyPref.putBoolean(Constants.IS_JOB_FINISHED,true);
+                editor.putBoolean(Constants.IS_JOB_FINISHED,true);
+                editor.apply();
             }
         });
 
@@ -243,7 +241,8 @@ public class RatingDialog {
 
     private void closeRatingDialog() {
         dialog.dismiss();
-        MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+        editor.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+        editor.apply();
     }
 
     private void showRatingDialog() {
@@ -258,7 +257,7 @@ public class RatingDialog {
         builder.setView(dialogView);
 
         // Get the custom alert dialog view widgets reference
-        btn_positive = dialogView.findViewById(R.id.proceed_positive_btn);
+        TextView btn_positive = dialogView.findViewById(R.id.proceed_positive_btn);
         TextView btn_negative = dialogView.findViewById(R.id.proceed_neutral_btn);
 
         btn_positive.setBackground(context.getResources().getDrawable(proceed_bg));
@@ -279,8 +278,9 @@ public class RatingDialog {
                     Toast.makeText(context.getApplicationContext(), " unable to find market app", Toast.LENGTH_LONG).show();
                 }
                 alertDialog.dismiss();
-                MyPref.putBoolean(Constants.IS_JOB_FINISHED, true);
-                MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+                editor.putBoolean(Constants.IS_JOB_FINISHED, true);
+                editor.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+                editor.apply();
             }
         });
 
@@ -288,7 +288,8 @@ public class RatingDialog {
             @Override
             public void onClick(View v) {
                 alertDialog.dismiss();
-                MyPref.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+                editor.putInt(Constants.COUNTS_FOR_DIALOG_OPEN, 0);
+                editor.apply();
             }
         });
         // Display the custom alert dialog on interface
